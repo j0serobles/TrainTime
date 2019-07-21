@@ -53,7 +53,7 @@
                       
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                           <ul class="navbar-nav mr-auto">
-                            <li class="nav-item active">
+                            <!-- <li class="nav-item active">
                               <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                             </li>
                             <li class="nav-item">
@@ -66,17 +66,17 @@
                               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href="#">Manage Trains</a>
                                 <a class="dropdown-item" href="#">Manage Administrators</a>
-                                <!-- <div class="dropdown-divider"></div> -->
-                                <!-- <a class="dropdown-item" href="#">Something else here</a> -->
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Something else here</a>
                               </div>
                             </li>
                             <li class="nav-item">
                               <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                            </li>
+                            </li> -->
                           </ul>
                           <div>
                             <span>
-                              <i id="user-icon" class="fas fa-user mr-5"></i>
+                              <i id="user-icon" class="fas fa-user mr-5" data-logged-in="false"></i>
                             </span>
                           </div>
                           <div> 
@@ -101,7 +101,7 @@
                           <div class="collapse" id="collapseExample">
                             <div class="card card-body">
                                 <!-------------------------->
-                                <form>
+                                <form id='add-train-form'>
                                     <div class="form-group">
                                           <label for="trainNumber">Train Number</label>
                                           <input type="text" class="form-control" id="trainNumber" placeholder="Train Number">

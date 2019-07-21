@@ -52,6 +52,10 @@ $( document ).ready(function() {
                 tr.append(trainNumber).append(trainName).append(trainDestination).append(trainFrequency).append(trainNextArrival).append(trainMinsAway);
                 //Append the row to the <tbody>
                 $("#train-tbody").append(tr);
+                //Clear the form
+                $( '#add-train-form' ).each(function(){
+                    this.reset();
+                });
             }
         }); 
 
@@ -59,7 +63,8 @@ $( document ).ready(function() {
         // Whenever a user clicks the "Submit" button in the form
         $("#submit-train").on("click", function(event) {
           event.preventDefault();
-          //Create the object to be pushed to the DB
+          //Create the object to be pushed to the DB.
+
           var newTrain = {
               trainNumber      : $("#trainNumber").val().trim(),
               trainName        : $("#trainName").val().trim(),
@@ -139,8 +144,41 @@ $( document ).ready(function() {
             $("#rt-clock").text( moment().format("HH:mm:ss") ) ; 
             setTimeout(displayClock, 500)
         }
-        
+
+        function refreshTrainTable() {
+            //Retrieve the entire list of trains from the databas and refresh the HTML table
+            trainsRef.once('value', function(snapshot) {
+                $("#train-tbody").empty();
+                snapshot.forEach( function(childSnapshot) {
+                    
+                    //Create the row element for the trains table
+                    var tr = $("<tr>"); 
+                    //Create a <td> element for each data field from the snapshot
+                    var trainNumber      = $("<td>").text(childSnapshot.val().trainNumber); 
+                    var trainName        = $("<td>").text(childSnapshot.val().trainName); 
+                    var trainDestination = $("<td>").text(childSnapshot.val().trainDestination); 
+                    var trainFirstTime   = $("<td>").text(childSnapshot.val().trainFirstTime);
+                    var trainFrequency   = $("<td>").text(childSnapshot.val().trainFrequency);
+                    var minsToArrival    = minutesToArrival(childSnapshot.val().trainFirstTime, childSnapshot.val().trainFrequency); 
+                    var trainMinsAway    = $("<td>").text(minsToArrival); 
+                    var nextArrival      = arrivalTime(minsToArrival); 
+                    
+                    var trainNextArrival = (minsToArrival <= 1) ? $("<td>").text("Arriving") : $("<td>").text(arrivalTime(minsToArrival));
+                    // var trainNextArrival = $("<td>").text(arrivalTime(minsToArrival));
+
+                    // var monthsWorked = moment().diff( moment( snapshot.val().empStartDate,"MM/DD/YYYY" ), 'months'); 
+                    //Append the <td>'s to the <tr>
+                    tr.append(trainNumber).append(trainName).append(trainDestination).append(trainFrequency).append(trainNextArrival).append(trainMinsAway);
+                    //Append the row to the <tbody>
+                    $("#train-tbody").append(tr);
+               });
+            });
+            setTimeout(refreshTrainTable, 30000) ;
+
+        }
+
         displayClock();
+        refreshTrainTable();
         console.log( "ready!" );
 
     });
