@@ -21,7 +21,7 @@ $( document ).ready(function() {
         // All of our connections will be stored in this directory.
         var trainsRef = database.ref("/trains");
 
-
+ 
         ///////////////////////////////////////////////////////////////////////
         // At the page load and subsequent value changes, get a snapshot of the local data.
         // This callback allows the page to stay updated with the values in firebase node "trains"
@@ -40,8 +40,12 @@ $( document ).ready(function() {
                 var trainDestination = $("<td>").text(snapshot.val().trainDestination); 
                 var trainFirstTime   = $("<td>").text(snapshot.val().trainFirstTime);
                 var trainFrequency   = $("<td>").text(snapshot.val().trainFrequency);
-                var trainNextArrival = $("<td>").text(""); 
-                var trainMinsAway    = $("<td>").text(""); 
+                var minsToArrival    = minutesToArrival(snapshot.val().trainFirstTime, snapshot.val().trainFrequency); 
+                var trainMinsAway    = $("<td>").text(minsToArrival); 
+                var nextArrival      = arrivalTime(minsToArrival); 
+                
+                var trainNextArrival = (minsToArrival <= 1) ? $("<td>").text("Arriving") : $("<td>").text(arrivalTime(minsToArrival));
+                // var trainNextArrival = $("<td>").text(arrivalTime(minsToArrival));
 
                 // var monthsWorked = moment().diff( moment( snapshot.val().empStartDate,"MM/DD/YYYY" ), 'months'); 
                 //Append the <td>'s to the <tr>
@@ -75,18 +79,68 @@ $( document ).ready(function() {
             
             if ( $(this).attr("aria-expanded") === "true") {
                 
-                //Area was collapsed and has been expanded.  Change icon to "-" 
+                //Train detail area was collapsed and has been expanded.  Change icon to "-" 
                 $("#link-text-icon").removeClass("fa-minus-square");
                 $("#link-text-icon").addClass("fa-plus-square");
             }
             else if ( $(this).attr("aria-expanded") === "false") {
                 
-                //Area was expanded and has been collapsed.  Change icon to "+" 
+                //Train detail area was expanded and has been collapsed.  Change icon to "+" 
                 $("#link-text-icon").removeClass("fa-plus-square");
                 $("#link-text-icon").addClass("fa-minus-square");
             }
         });
 
+        function minutesToArrival ( trainFirstTime , trainFrequency ) {
+
+            //Given values for the train's first time and frequency,
+            //return the minutes until next arrival.
+            // trainFirstTime = a string in "HH:mm" format.
+            // trainFrequency = an integer > 0
+            //---------------------------------------------------------
+            
+            // First Time (pushed back 1 year to make sure it comes before current time)
+            var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
+            console.log("First Time: " + trainFirstTime + ", First time converted: " + firstTimeConverted);
+
+            // Current Time
+            var currentTime = moment();
+            console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+
+            // Difference between the times
+            var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+            console.log("DIFFERENCE IN TIME: " + diffTime);
+
+            // Time apart (remainder)
+            var tRemainder = diffTime % trainFrequency;
+            console.log("Remainder: " + tRemainder);
+
+            // Minute Until Train
+            var tMinutesTillTrain = trainFrequency - tRemainder;
+            console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+
+            return tMinutesTillTrain; 
+
+            // // Next Train
+            // var nextTrain = moment().add(tMinutesTillTrain, "minutes");
+            // console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
+            //
+        }
+
+        function arrivalTime ( minutesToArrival) {
+
+            //Given the minutes to arrival, return the arrival time in HH:mm format
+             return ( moment().add(minutesToArrival, "minutes").format("HH:mm") ) ;
+
+        }
+
+        function displayClock () {
+            //Updates the <div> element with the current time
+            $("#rt-clock").text( moment().format("HH:mm:ss") ) ; 
+            setTimeout(displayClock, 500)
+        }
+        
+        displayClock();
         console.log( "ready!" );
 
     });

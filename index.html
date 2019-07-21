@@ -24,7 +24,7 @@
         <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
 
-        <!-- Link to Moment.js should go here -->
+        <!-- Moment.js -->
         <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
 
         <!-- Google Font-->
@@ -45,7 +45,7 @@
         <div class="container">
            <header>
                 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                        <i class="fas fa-train"></i>
+                        <i id="train-logo" class="fas fa-train"></i>
                         <a id="logo" class="navbar-brand" href="#">TrainTime</a>
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                           <span class="navbar-toggler-icon"></span>
@@ -74,10 +74,18 @@
                               <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
                             </li>
                           </ul>
-                          <form class="form-inline my-2 my-lg-0">
+                          <div>
+                            <span>
+                              <i id="user-icon" class="fas fa-user mr-5"></i>
+                            </span>
+                          </div>
+                          <div> 
+                            <span><h2 id="rt-clock">00:00</h2> </span>
+                          </div>
+                          <!-- <form class="form-inline my-2 my-lg-0">
                             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                          </form>
+                          </form> -->
                         </div>
                       </nav>
 
