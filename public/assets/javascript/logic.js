@@ -28,11 +28,11 @@
         // At the page load and subsequent value changes, get a snapshot of the local data.
         // This callback allows the page to stay updated with the values in firebase node "trains"
         database.ref("/trains").on("child_added", function(snapshot) {
-            // Print the local data to the console.  Will print NULL the first time.
-            console.log("child_added event received: Snapshot:" + snapshot.val());
+
+            console.log("child_added event received.");
 
             if (snapshot.val() !== null) {
-                console.log("child_added event received: Snapshot:" + JSON.stringify(snapshot.val()));
+                console.log("In child_added event. Snapshot:" + JSON.stringify(snapshot.val() ) );
                 //Create the row element for the trains table
                 var tr = $("<tr>"); 
                 //Create a <td> element for each data field from the snapshot
@@ -57,6 +57,8 @@
                 $( '#add-train-form' ).each(function(){
                     this.reset();
                 });
+                //Enable the table's refresh after 30 seconds.  This will re-submit itself every 30 seconds.
+                setTimeout(refreshTrainTable, 30000) ;
             }
         }); 
 
@@ -107,23 +109,23 @@
             
             // First Time (pushed back 1 year to make sure it comes before current time)
             var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
-            console.log("First Time: " + trainFirstTime + ", First time converted: " + firstTimeConverted);
+            //console.log("First Time: " + trainFirstTime + ", First time converted: " + firstTimeConverted);
 
             // Current Time
             var currentTime = moment();
-            console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+            //console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
 
             // Difference between the times
             var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
-            console.log("DIFFERENCE IN TIME: " + diffTime);
+            //console.log("DIFFERENCE IN TIME: " + diffTime);
 
             // Time apart (remainder)
             var tRemainder = diffTime % trainFrequency;
-            console.log("Remainder: " + tRemainder);
+            //console.log("Remainder: " + tRemainder);
 
             // Minute Until Train
             var tMinutesTillTrain = trainFrequency - tRemainder;
-            console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+            //console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
 
             return tMinutesTillTrain; 
 
@@ -149,9 +151,10 @@
         function refreshTrainTable() {
             //Retrieve the entire list of trains from the databas and refresh the HTML table
             trainsRef.once('value', function(snapshot) {
+                console.log ("value event received.");
                 $("#train-tbody").empty();
                 snapshot.forEach( function(childSnapshot) {
-                    console.log("Child Snapshot = " + JSON.stringify(childSnapshot)); 
+                    console.log("  Child Snapshot = " + JSON.stringify(childSnapshot)); 
                     //Create the row element for the trains table
                     var tr = $("<tr>"); 
                     //Create a <td> element for each data field from the snapshot
@@ -174,20 +177,43 @@
                     $("#train-tbody").append(tr);
                });
             });
+            //Bind double clicks on <td> elements
+            $("td").on("click", makeEditable);
             setTimeout(refreshTrainTable, 30000) ;
 
         }
+
+        function makeEditable(event) { 
+
+            console.log("td element clicked on!"); 
+
+            var OriginalContent = $(this).text();
+    
+            $(this).addClass("cellEditing");
+            $(this).html("<input type='text' value='"  + OriginalContent + "'/>");
+            $(this).children().first().focus();
+    
+            $(this).children().first().keypress(function (e) {
+                if (e.which == 13) {
+                    var newContent = $(this).val();
+                    $(this).parent().text(newContent);
+                    $(this).parent().removeClass("cellEditing");
+                }
+            });
+    
+            $(this).children().first().blur(function(){
+                $(this).parent().text(OriginalContent);
+                $(this).parent().removeClass("cellEditing");
+            });
+      };
+
 
         //
         // The ID of the currently signed-in User. We keep track of this to detect Auth state change events that are just
         // programmatic token refresh but not a User status change.
         //
         var currentUID;
-
-
         
-
-
     window.addEventListener('load', function() {
 
         ///
@@ -213,8 +239,6 @@
             }
         }
 
-
-
         // Bind Sign in button.
         signInButton.addEventListener('click', function() {
           var provider = new firebase.auth.GoogleAuthProvider();
@@ -229,9 +253,11 @@
         // Listen for auth state changes
         firebase.auth().onAuthStateChanged(onAuthStateChanged);
 
-
         displayClock();
-        refreshTrainTable();
+        //refreshTrainTable();
+
+
+
         console.log( "ready!" );
 
     });
