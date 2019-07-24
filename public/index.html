@@ -21,8 +21,8 @@
         <script src="external/jqueryui/jquery-ui.min.js"></script>
 
         <!-- Firebase References -->
-        <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
+        <!-- <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
+
 
         <!-- Moment.js -->
         <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
@@ -32,6 +32,12 @@
 
         <!-- Font Awsome -->
         <script src="https://kit.fontawesome.com/2ce6145945.js"></script>
+
+         <!-- Material Design Lite -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.blue_grey-orange.min.css">
+        <script src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+
 
         <!-- Custom Stylings -->
         <link rel="stylesheet" href="assets/css/styling.css" type="text/css">
@@ -43,7 +49,18 @@
         <![endif]-->
 
         <div class="container">
-           <header>
+
+            <!-- Splash screen -->
+            <section id="page-splash">
+              <i id="train-logo" class="fas fa-train"></i>
+              <h3 class="logo">Train Time</h3>
+              <div>
+                <button id="sign-in-button" class="mdl-button--raised mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons">account_circle</i> Sign in with Google</button>
+              </div>
+            </section>
+
+      
+            <header>
                 <nav class="navbar navbar-expand-lg navbar-light bg-light">
                         <i id="train-logo" class="fas fa-train"></i>
                         <a id="logo" class="navbar-brand" href="#">TrainTime</a>
@@ -75,9 +92,7 @@
                             </li> -->
                           </ul>
                           <div>
-                            <span>
-                              <i id="user-icon" class="fas fa-user mr-5" data-logged-in="false"></i>
-                            </span>
+                            <i id="sign-out-button" class="fas fa-sign-out-alt my-3 mr-3"></i>
                           </div>
                           <div> 
                             <span><h2 id="rt-clock">00:00</h2> </span>
@@ -157,9 +172,25 @@
          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         
+         <!-- Firebase hosting -->
+         <!-- The core Firebase JS SDK is always required and must be listed first -->
+         <script src="/__/firebase/6.3.1/firebase-app.js"></script>
+
+         <!-- Firebase Auth -->
+         <script src="/__/firebase/6.3.0/firebase-auth.js"></script>
+
+         <!-- Firebase database -->
+         <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
+
+         <!-- SDKs for Firebase products used.
+         https://firebase.google.com/docs/web/setup#reserved-urls -->
+
+         <!-- Initialize Firebase -->
+        <script src="/__/firebase/init.js"></script>
+        
         <script src="" async defer></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        
+        <!-- Business logic -->
         <script src="assets/javascript/logic.js"></script>
     </body>
 </html>

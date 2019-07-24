@@ -1,4 +1,6 @@
-$( document ).ready(function() {
+        var signInButton  = document.getElementById('sign-in-button');
+        var signOutButton = document.getElementById('sign-out-button');
+        var splashPage    = document.getElementById('page-splash');
 
         var config = {
             apiKey: "AIzaSyCDw43NH-kOZIBGwoYo7R8OxYVVBTEQ0Pc",
@@ -10,7 +12,7 @@ $( document ).ready(function() {
             appId: "1:481457808049:web:9f8561538539db74"
         };
 
-        firebase.initializeApp(config);
+        //firebase.initializeApp(config);
 
         // Assign the reference to the database to a variable named 'database'
         var database = firebase.database();
@@ -31,7 +33,6 @@ $( document ).ready(function() {
 
             if (snapshot.val() !== null) {
                 console.log("child_added event received: Snapshot:" + JSON.stringify(snapshot.val()));
-                console.log("train name is:" + snapshot.val().trainName );
                 //Create the row element for the trains table
                 var tr = $("<tr>"); 
                 //Create a <td> element for each data field from the snapshot
@@ -150,7 +151,7 @@ $( document ).ready(function() {
             trainsRef.once('value', function(snapshot) {
                 $("#train-tbody").empty();
                 snapshot.forEach( function(childSnapshot) {
-                    
+                    console.log("Child Snapshot = " + JSON.stringify(childSnapshot)); 
                     //Create the row element for the trains table
                     var tr = $("<tr>"); 
                     //Create a <td> element for each data field from the snapshot
@@ -176,6 +177,58 @@ $( document ).ready(function() {
             setTimeout(refreshTrainTable, 30000) ;
 
         }
+
+        //
+        // The ID of the currently signed-in User. We keep track of this to detect Auth state change events that are just
+        // programmatic token refresh but not a User status change.
+        //
+        var currentUID;
+
+
+        
+
+
+    window.addEventListener('load', function() {
+
+        ///
+        /// Triggers every time there is a change in the Firebase auth state (i.e. user signed-in or user signed out).
+        ///
+        function onAuthStateChanged(user) {
+            // We ignore token refresh events.
+            if (user && currentUID === user.uid) {
+            return;
+            }
+
+            //cleanupUi();
+            if (user) {
+            currentUID = user.uid;
+            splashPage.style.display = 'none';
+           // writeUserData(user.uid, user.displayName, user.email, user.photoURL);
+            //startDatabaseQueries();
+            } else {
+            // Set currentUID to null.
+            currentUID = null;
+            // Display the splash page where you can sign-in.
+            splashPage.style.display = '';
+            }
+        }
+
+
+
+        // Bind Sign in button.
+        signInButton.addEventListener('click', function() {
+          var provider = new firebase.auth.GoogleAuthProvider();
+          firebase.auth().signInWithPopup(provider);
+        });
+
+        // Bind Sign out button.
+          signOutButton.addEventListener('click', function() {
+          firebase.auth().signOut();
+        });
+        
+        // Listen for auth state changes
+        firebase.auth().onAuthStateChanged(onAuthStateChanged);
+
 
         displayClock();
         refreshTrainTable();
