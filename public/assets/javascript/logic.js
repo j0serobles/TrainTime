@@ -154,7 +154,9 @@
                 console.log ("value event received.");
                 $("#train-tbody").empty();
                 snapshot.forEach( function(childSnapshot) {
+            
                     console.log("  Child Snapshot = " + JSON.stringify(childSnapshot)); 
+                    renderRow(childSnapshot); 
                     //Create the row element for the trains table
                     var tr = $("<tr>"); 
                     //Create a <td> element for each data field from the snapshot
@@ -181,6 +183,12 @@
             $("td").on("click", makeEditable);
             setTimeout(refreshTrainTable, 30000) ;
 
+        }
+
+        // Re display the row values with the snapshot passed. 
+        function renderRow(snapshot) {
+            console.log( "Inside renderRow"); 
+            console.log( "rederRow(): " + JSON.stringify(snapshot)) ; 
         }
 
         function makeEditable(event) { 
