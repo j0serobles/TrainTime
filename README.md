@@ -61,7 +61,7 @@ Each train's arrival time as well as minutes to arrival is automatically updated
 
 ![train homework](main_page.JPG)
 
-By cliking the "Add a Train" button, the "Train Details" area is displayed, allowing the user to add information for a new train. After clicking the "Submit" button, the train record is added to the table.  The user can click the "Add a Train" button again to collaps the Train Details area. 
+By cliking the "Add a Train" button, the "Train Details" area is displayed, allowing the user to add information for a new train. After clicking the "Submit" button, the train record is added to the table.  The user can click the "Add a Train" button again to collapse the Train Details area. 
 
 ![train_homework](train_details.JPG)
 
