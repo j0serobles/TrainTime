@@ -45,13 +45,12 @@ The app uses HTML , Javascript , CSS, Jquery, JqueryUI, Firebase RT Database and
     
     * Frequency -- in minutes
   
-  * Code this app to calculate when the next train will arrive; this should be relative to the current time.
+  * The app calculates when the next train will arrive; relative to the current time.
   
-  * Users from many different machines must be able to view same train times.
+  * Users from many different machines are also able to view same train times, by accessing the app URL from their browsers.
   
-  * Styling and theme are completely up to you. Get Creative!
 
 ### Example Site
 
-![train homework](Train_Time_Image.png)
+![train homework](splash.JPG)
 
