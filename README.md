@@ -50,7 +50,19 @@ The app uses HTML , Javascript , CSS, Jquery, JqueryUI, Firebase RT Database and
   * Users from many different machines are also able to view same train times, by accessing the app URL from their browsers.
   
 
-### Example Site
+### Application Screen Shots
+
+This is the initial splash page shown when the user reaches the app's URL.
 
 ![train homework](splash.JPG)
+
+After login, the main page is shown with the table displaying existing train details from the firebase real time database. 
+Each train's arrival time as well as minutes to arrival is automatically updated every 30 seconds. 
+
+![train homework](main_page.JPG)
+
+By cliking the "Add a Train" button, the "Train Details" area is displayed, allowing the user to add information for a new train. After clicking the "Submit" button, the train record is added to the table.  The user can click the "Add a Train" button again to collaps the Train Details area. 
+
+![train_homework](train_details.JPG)
+
 
