@@ -35,24 +35,43 @@
                 console.log("In child_added event. Snapshot:" + JSON.stringify(snapshot.val() ) );
                 //Create the row element for the trains table
                 var tr = $("<tr>"); 
-                //Create a <td> element for each data field from the snapshot
-                var trainNumber      = $("<td>").text(snapshot.val().trainNumber); 
-                var trainName        = $("<td>").text(snapshot.val().trainName); 
-                var trainDestination = $("<td>").text(snapshot.val().trainDestination); 
-                var trainFirstTime   = $("<td>").text(snapshot.val().trainFirstTime);
-                var trainFrequency   = $("<td>").text(snapshot.val().trainFrequency);
-                var minsToArrival    = minutesToArrival(snapshot.val().trainFirstTime, snapshot.val().trainFrequency); 
-                var trainMinsAway    = $("<td>").text(minsToArrival); 
-                var nextArrival      = arrivalTime(minsToArrival); 
+                tr.attr("data-rowkey", snapshot.key); 
                 
-                var trainNextArrival = (minsToArrival <= 1) ? $("<td>").text("Arriving") : $("<td>").text(arrivalTime(minsToArrival));
-                // var trainNextArrival = $("<td>").text(arrivalTime(minsToArrival));
+                //Create a <td> element for each data field from the snapshot
+                var trainNumber      = $("<td>").text(snapshot.val().trainNumber);
+                trainNumber.attr("data-name", "trainNumber");
+                
+                var trainName        = $("<td>").text(snapshot.val().trainName); 
+                trainName.attr("data-name", "trainName");
+                $(trainName).dblclick(makeEditable); 
+                
+                var trainDestination = $("<td>").text(snapshot.val().trainDestination); 
+                trainDestination.attr("data-name", "trainDestination");
+                $(trainDestination).dblclick(makeEditable); 
+                
+                var trainFirstTime   = $("<td>").text(snapshot.val().trainFirstTime);
+                trainFirstTime.attr("data-name", "trainFirstTime");
 
-                // var monthsWorked = moment().diff( moment( snapshot.val().empStartDate,"MM/DD/YYYY" ), 'months'); 
+                var trainFrequency   = $("<td>").text(snapshot.val().trainFrequency);
+                trainFrequency.attr("data-name", "trainFrequency");
+                
+                var minsToArrival    = minutesToArrival(snapshot.val().trainFirstTime, snapshot.val().trainFrequency); 
+
+                var trainMinsAway    = $("<td>").text(minsToArrival); 
+                trainMinsAway.attr("data-name", "trainMinsAway"); 
+
+                var nextArrival      = arrivalTime(minsToArrival);
+                var trainNextArrival = (minsToArrival <= 1) ? $("<td>").text("Arriving") : $("<td>").text(arrivalTime(minsToArrival));
+                trainNextArrival.attr("data-name", "trainNextArrival");
+                $(nextArrival).dblclick(makeEditable);  
+                
+                
                 //Append the <td>'s to the <tr>
                 tr.append(trainNumber).append(trainName).append(trainDestination).append(trainFrequency).append(trainNextArrival).append(trainMinsAway);
+                
                 //Append the row to the <tbody>
                 $("#train-tbody").append(tr);
+                
                 //Clear the form
                 $( '#add-train-form' ).each(function(){
                     this.reset();
@@ -75,8 +94,7 @@
               trainFirstTime   : $("#trainFirstTime").val().trim(),
               trainFrequency   : $("#trainFrequency").val().trim()
           }
-          // Log the Bidder and Price (Even if not the highest)
-          console.log ("train number = " + newTrain.trainNumber + ", train name = " + newTrain.trainName  + ",destination " 
+         console.log ("train number = " + newTrain.trainNumber + ", train name = " + newTrain.trainName  + ",destination " 
           +  newTrain.trainDestination + ", first time = "  + newTrain.trainFirstTime + ", frequency = "  + newTrain.trainFrequency ); 
           // Save the new Train in Firebase
           database.ref("/trains").push(newTrain); 
@@ -148,39 +166,30 @@
             setTimeout(displayClock, 500)
         }
 
+
         function refreshTrainTable() {
             //Retrieve the entire list of trains from the databas and refresh the HTML table
             trainsRef.once('value', function(snapshot) {
                 console.log ("value event received.");
-                $("#train-tbody").empty();
                 snapshot.forEach( function(childSnapshot) {
-            
-                    console.log("  Child Snapshot = " + JSON.stringify(childSnapshot)); 
-                    renderRow(childSnapshot); 
-                    //Create the row element for the trains table
-                    var tr = $("<tr>"); 
-                    //Create a <td> element for each data field from the snapshot
-                    var trainNumber      = $("<td>").text(childSnapshot.val().trainNumber); 
-                    var trainName        = $("<td>").text(childSnapshot.val().trainName); 
-                    var trainDestination = $("<td>").text(childSnapshot.val().trainDestination); 
-                    var trainFirstTime   = $("<td>").text(childSnapshot.val().trainFirstTime);
-                    var trainFrequency   = $("<td>").text(childSnapshot.val().trainFrequency);
+           
+                   
+                    //For each row in the table (childSnapshot):
+                    // 1) compute the minsToArrival and nextArrival times.
+                    // 2) Match the table row with rowkey attribute = childSnapshot.key
+                    //    and update the computed values (minsToArrival and nextArrival)
+
                     var minsToArrival    = minutesToArrival(childSnapshot.val().trainFirstTime, childSnapshot.val().trainFrequency); 
-                    var trainMinsAway    = $("<td>").text(minsToArrival); 
                     var nextArrival      = arrivalTime(minsToArrival); 
                     
-                    var trainNextArrival = (minsToArrival <= 1) ? $("<td>").text("Arriving") : $("<td>").text(arrivalTime(minsToArrival));
-                    // var trainNextArrival = $("<td>").text(arrivalTime(minsToArrival));
-
-                    // var monthsWorked = moment().diff( moment( snapshot.val().empStartDate,"MM/DD/YYYY" ), 'months'); 
-                    //Append the <td>'s to the <tr>
-                    tr.append(trainNumber).append(trainName).append(trainDestination).append(trainFrequency).append(trainNextArrival).append(trainMinsAway);
-                    //Append the row to the <tbody>
-                    $("#train-tbody").append(tr);
+                    
+                    var rowKey = childSnapshot.key; 
+                    $("tr rowkey="+ rowKey + " td [data-name=trainMinsAway]").text(minsToArrival);
+                    $("tr rowkey="+ rowKey + " td [data-name=trainMinsToArrival]").text( (minsToArrival <= 1) ? $("<td>").text("Arriving") : $("<td>").text(arrivalTime(minsToArrival)));
+                   
                });
             });
-            //Bind double clicks on <td> elements
-            $("td").on("click", makeEditable);
+
             setTimeout(refreshTrainTable, 30000) ;
 
         }
@@ -188,7 +197,7 @@
         // Re display the row values with the snapshot passed. 
         function renderRow(snapshot) {
             console.log( "Inside renderRow"); 
-            console.log( "rederRow(): " + JSON.stringify(snapshot)) ; 
+            console.log( "rederRow() key is : " + snapshot.key) ; 
         }
 
         function makeEditable(event) { 
@@ -261,8 +270,10 @@
         // Listen for auth state changes
         firebase.auth().onAuthStateChanged(onAuthStateChanged);
 
+
+
         displayClock();
-        //refreshTrainTable();
+
 
 
 
