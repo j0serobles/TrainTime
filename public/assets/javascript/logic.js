@@ -1,7 +1,9 @@
+        // Globals
         var signInButton  = document.getElementById('sign-in-button');
         var signOutButton = document.getElementById('sign-out-button');
         var splashPage    = document.getElementById('page-splash');
 
+        //Firebase RT Database configuration object.
         var config = {
             apiKey: "AIzaSyCDw43NH-kOZIBGwoYo7R8OxYVVBTEQ0Pc",
             authDomain: "jrr-proj-firebase.firebaseapp.com",
@@ -11,8 +13,6 @@
             messagingSenderId: "481457808049",
             appId: "1:481457808049:web:9f8561538539db74"
         };
-
-        //firebase.initializeApp(config);
 
         // Assign the reference to the database to a variable named 'database'
         var database = firebase.database();
@@ -27,12 +27,12 @@
         ///////////////////////////////////////////////////////////////////////
         // At the page load and subsequent value changes, get a snapshot of the local data.
         // This callback allows the page to stay updated with the values in firebase node "trains"
+        // It gets triggered on page load and every time a new child node is added to the collection.
         database.ref("/trains").on("child_added", function(snapshot) {
 
             console.log("child_added event received.");
 
             if (snapshot.val() !== null) {
-                console.log("In child_added event. Snapshot:" + JSON.stringify(snapshot.val() ) );
                 //Create the row element for the trains table
                 var tr = $("<tr>"); 
                 tr.attr("data-rowkey", snapshot.key); 
@@ -41,6 +41,7 @@
                 var trainNumber      = $("<td>").text(snapshot.val().trainNumber);
                 trainNumber.attr("data-name", "trainNumber");
                 
+                //Create the table cells elements. 
                 var trainName        = $("<td>").text(snapshot.val().trainName); 
                 trainName.attr("data-name", "trainName");
                 $(trainName).dblclick(makeEditable); 
@@ -63,20 +64,26 @@
                 var nextArrival      = arrivalTime(minsToArrival);
                 var trainNextArrival = (minsToArrival <= 1) ? $("<td>").text("Arriving") : $("<td>").text(arrivalTime(minsToArrival));
                 trainNextArrival.attr("data-name", "trainNextArrival");
-                $(nextArrival).dblclick(makeEditable);  
-                
-                
+
                 //Append the <td>'s to the <tr>
-                tr.append(trainNumber).append(trainName).append(trainDestination).append(trainFrequency).append(trainNextArrival).append(trainMinsAway);
+                tr.append(trainNumber)
+                .append(trainName)
+                .append(trainDestination)
+                .append(trainFirstTime)
+                .append(trainFrequency)
+                .append(trainNextArrival)
+                .append(trainMinsAway);
                 
                 //Append the row to the <tbody>
                 $("#train-tbody").append(tr);
                 
-                //Clear the form
+                //Clear the details form
                 $( '#add-train-form' ).each(function(){
                     this.reset();
                 });
-                //Enable the table's refresh after 30 seconds.  This will re-submit itself every 30 seconds.
+
+                //Enable the computed values (Mins to Arrival, Next Arrival Time) refresh after 30 seconds.
+                //This will re-submit itself every 30 seconds.
                 setTimeout(refreshTrainTable, 30000) ;
             }
         }); 
@@ -94,12 +101,17 @@
               trainFirstTime   : $("#trainFirstTime").val().trim(),
               trainFrequency   : $("#trainFrequency").val().trim()
           }
-         console.log ("train number = " + newTrain.trainNumber + ", train name = " + newTrain.trainName  + ",destination " 
-          +  newTrain.trainDestination + ", first time = "  + newTrain.trainFirstTime + ", frequency = "  + newTrain.trainFrequency ); 
-          // Save the new Train in Firebase
+
+        //  console.log ("train number = " + newTrain.trainNumber + ", train name = " + newTrain.trainName  + ",destination " 
+        //   +  newTrain.trainDestination + ", first time = "  + newTrain.trainFirstTime + ", frequency = "  + newTrain.trainFrequency ); 
+        
+        // Save the new Train in Firebase
           database.ref("/trains").push(newTrain); 
         });
 
+        ///////////////////////////////////////////////////////////////////////////////
+        // Changes the icon in the button every time the button is clicked
+        // between "+" and "-"
         ///////////////////////////////////////////////////////////////////////////////
         $("#details-collapse-button").on("click", function() {
             
@@ -117,6 +129,8 @@
             }
         });
 
+        //Computes the minutes until the next arrival time, based on the
+        //train's initial time (start time). 
         function minutesToArrival ( trainFirstTime , trainFrequency ) {
 
             //Given values for the train's first time and frequency,
@@ -127,53 +141,42 @@
             
             // First Time (pushed back 1 year to make sure it comes before current time)
             var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
-            //console.log("First Time: " + trainFirstTime + ", First time converted: " + firstTimeConverted);
-
+            
             // Current Time
             var currentTime = moment();
-            //console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
-
+            
             // Difference between the times
             var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
-            //console.log("DIFFERENCE IN TIME: " + diffTime);
-
+           
             // Time apart (remainder)
             var tRemainder = diffTime % trainFrequency;
-            //console.log("Remainder: " + tRemainder);
 
             // Minute Until Train
             var tMinutesTillTrain = trainFrequency - tRemainder;
-            //console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
 
             return tMinutesTillTrain; 
-
-            // // Next Train
-            // var nextTrain = moment().add(tMinutesTillTrain, "minutes");
-            // console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
-            //
         }
 
+        //Return the time for the next arrival. 
         function arrivalTime ( minutesToArrival) {
 
             //Given the minutes to arrival, return the arrival time in HH:mm format
              return ( moment().add(minutesToArrival, "minutes").format("HH:mm") ) ;
-
         }
 
+        //Refreshes the clock
         function displayClock () {
             //Updates the <div> element with the current time
             $("#rt-clock").text( moment().format("HH:mm:ss") ) ; 
             setTimeout(displayClock, 500)
         }
 
-
+        //Refreshes the dynamic values in the table (Mins to Arrival and Next Train Arrival Time)
         function refreshTrainTable() {
-            //Retrieve the entire list of trains from the databas and refresh the HTML table
             trainsRef.once('value', function(snapshot) {
                 console.log ("value event received.");
                 snapshot.forEach( function(childSnapshot) {
-           
-                   
+
                     //For each row in the table (childSnapshot):
                     // 1) compute the minsToArrival and nextArrival times.
                     // 2) Match the table row with rowkey attribute = childSnapshot.key
@@ -182,45 +185,69 @@
                     var minsToArrival    = minutesToArrival(childSnapshot.val().trainFirstTime, childSnapshot.val().trainFrequency); 
                     var nextArrival      = arrivalTime(minsToArrival); 
                     
-                    
                     var rowKey = childSnapshot.key; 
-                    $("tr rowkey="+ rowKey + " td [data-name=trainMinsAway]").text(minsToArrival);
-                    $("tr rowkey="+ rowKey + " td [data-name=trainMinsToArrival]").text( (minsToArrival <= 1) ? $("<td>").text("Arriving") : $("<td>").text(arrivalTime(minsToArrival)));
+                    $('tr[data-rowkey="' + rowKey + '"] td[data-name="trainMinsAway"]').text(minsToArrival);
+                    $('tr[data-rowkey="' + rowKey + '"] td[data-name="trainNextArrival"]')
+                      .text( (minsToArrival <= 1) ? "Arriving" : nextArrival );
                    
                });
             });
-
             setTimeout(refreshTrainTable, 30000) ;
-
         }
 
-        // Re display the row values with the snapshot passed. 
-        function renderRow(snapshot) {
-            console.log( "Inside renderRow"); 
-            console.log( "rederRow() key is : " + snapshot.key) ; 
+        //Update the row in the database with the matching key.
+        function updateRow(rowKey) {
+          //Updates the train in the database whose key matches the rowKey passed. 
+          //First create the object to be sent to the update() method:
+          var rowObject = {}; 
+          $( "tr[data-rowkey='" + rowKey + "']" ).children( "td" ).each( function() {
+            console.log( this );
+            rowObject[$(this).attr("data-name")] = $(this).text().trim(); 
+            });
+
+          //Then create an update{} object and send it to the update() method.
+          var updateObject = {};
+          updateObject[rowKey] = rowObject;
+          trainsRef.update(updateObject, function(error) {
+            if(error) {
+              console.log("Error occurred while updating database:" + error);
+            }
+           }); 
         }
+
+        //Change a <td> element to editable by inserting an <input> element when
+        //the user double-clicks the <td>.  When focus is lost, restore the old value.
+        //If <Enter> is pressed, change the value and send the change to the database. 
 
         function makeEditable(event) { 
-
-            console.log("td element clicked on!"); 
-
-            var OriginalContent = $(this).text();
+            tableCell = $(this);
+            //Prevent double click inside <input> element. 
+            if ( tableCell.hasClass("cellEditing") ) {
+                return;
+            }
+            var OriginalContent = tableCell.text();
+            var columnName      = tableCell.attr("data-name"); 
     
-            $(this).addClass("cellEditing");
-            $(this).html("<input type='text' value='"  + OriginalContent + "'/>");
-            $(this).children().first().focus();
+            tableCell.addClass("cellEditing");
+            tableCell.html("<input type='text' value='"  + OriginalContent + "'/>");
+            tableCell.children().first().focus();
     
-            $(this).children().first().keypress(function (e) {
+            //Handle keypresses in first child of <td> element (the added <input> element).
+            tableCell.children().first().keypress(function (e) {
                 if (e.which == 13) {
-                    var newContent = $(this).val();
-                    $(this).parent().text(newContent);
-                    $(this).parent().removeClass("cellEditing");
+                    var newContent = tableCell.children().first().val();
+                    tableCell.text(newContent);   //Set text of the <td> element.
+                    tableCell.removeClass("cellEditing"); //Remove editing class
+                    tableCell.removeAttr("class"); 
+                    updateRow($(tableCell).parent().attr("data-rowkey")); 
                 }
             });
     
-            $(this).children().first().blur(function(){
-                $(this).parent().text(OriginalContent);
-                $(this).parent().removeClass("cellEditing");
+            //Event handler for when focus is lost
+            tableCell.children().first().blur( function() {
+                tableCell.text(OriginalContent);
+                tableCell.removeClass("cellEditing");
+                tableCell.removeAttr("class"); 
             });
       };
 
@@ -246,8 +273,6 @@
             if (user) {
             currentUID = user.uid;
             splashPage.style.display = 'none';
-           // writeUserData(user.uid, user.displayName, user.email, user.photoURL);
-            //startDatabaseQueries();
             } else {
             // Set currentUID to null.
             currentUID = null;
@@ -270,12 +295,7 @@
         // Listen for auth state changes
         firebase.auth().onAuthStateChanged(onAuthStateChanged);
 
-
-
         displayClock();
-
-
-
 
         console.log( "ready!" );
 
